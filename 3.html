@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubi P2P Exchange</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="1.css">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Arial', sans-serif;
+        }
+
+        body {
+            background: #1A1A1A;
+            color: #FFFFFF;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Loader Styles */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1A1A1A;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #F0B90B;
+            border-top: 5px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        .loader::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 5px solid #FFD700;
+            border-top: 5px solid transparent;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Error Message Styles */
+        .error-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1A1A1A 0%, #2A2A2A 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 20px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .error-container.show {
+            display: flex;
+        }
+
+        .error-icon {
+            font-size: 54px;
+            color: #F0B90B;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #FFD700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .error-message {
+            font-size: 15px;
+            color: #8D9199;
+            margin-bottom: 30px;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        .retry-btn {
+            background: #F0B90B;
+            color: #1A1A1A;
+            border: none;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            box-shadow: 0 4px 10px rgba(240, 185, 11, 0.3);
+        }
+
+        .retry-btn:hover {
+            background: #FFD700;
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #141414;
+            border-bottom: 1px solid #2A2A2A;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .express {
+            font-size: 20px;
+            font-weight: 700;
+            color: #F0B90B;
+        }
+
+        .p2p {
+            font-size: 12px;
+            color: #8D9199;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .currency-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #FFFFFF;
+        }
+
+        .notification-bell {
+            position: relative;
+            font-size: 20px;
+            color: #8D9199;
+            cursor: pointer;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #F0B90B;
+            border-radius: 50%;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            padding: 24px 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #212121;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            margin-bottom: 24px;
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            background: #F0B90B;
+            color: #1A1A1A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .profile-info p {
+            font-size: 14px;
+            color: #8D9199;
+        }
+
+        .wallet-card {
+            background: #212121;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .wallet-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .wallet-balance {
+            font-size: 24px;
+            font-weight: 700;
+            color: #F0B90B;
+        }
+
+        .wallet-currency {
+            font-size: 14px;
+            color: #8D9199;
+            margin-bottom: 12px;
+        }
+
+        .wallet-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .wallet-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .deposit-btn {
+            background: #F0B90B;
+            color: #1A1A1A;
+        }
+
+        .deposit-btn:hover {
+            background: #FFD700;
+            transform: scale(1.02);
+        }
+
+        .withdraw-btn {
+            background: #2A2A2A;
+            color: #FFFFFF;
+            border: 1px solid #F0B90B;
+        }
+
+        .withdraw-btn:hover {
+            background: #3A3A3A;
+            transform: scale(1.02);
+        }
+
+        .sign-out-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #F0B90B, #FFD700);
+            color: #1A1A1A;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.2s;
+            margin-top: 24px;
+        }
+
+        .sign-out-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #212121;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            padding: 14px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #8D9199;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #FFFFFF;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #8D9199;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            background: #2A2A2A;
+            border: 1px solid #3A3A3A;
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #F0B90B;
+            box-shadow: 0 0 5px rgba(240, 185, 11, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #F0B90B;
+            color: #1A1A1A;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: #FFD700;
+            transform: scale(1.02);
+        }
+
+        .submit-btn:disabled {
+            background: #3A3A3A;
+            color: #8D9199;
+            cursor: not-allowed;
+        }
+
+        .modal-spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #F0B90B;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 16px auto 0;
+        }
+
+        .deposit-instructions {
+            background: #2A2A2A;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #8D9199;
+        }
+
+        .deposit-instructions .no {
+            color: #F0B90B;
+            font-weight: 600;
+        }
+
+        .qr-code-placeholder {
+            width: 120px;
+            height: 120px;
+            background: #3A3A3A;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px auto;
+            color: #8D9199;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 90%;
+                padding: 16px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-avatar {
+                margin-bottom: 12px;
+            }
+
+            .wallet-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .wallet-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader-container" id="loader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-container" id="error-container">
+        <i class="fas fa-exclamation-triangle error-icon"></i>
+        <h2 class="error-title">Something Went Wrong</h2>
+        <p class="error-message" id="error-text">Please check your internet connection or try again later.</p>
+        <button class="retry-btn" onclick="retryLoading()">Try Again</button>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content" id="main-content">
+        <div class="header">
+            <div class="header-left">
+                <div style="position: relative; display: inline-block; width: 40px; height: 40px; border-radius: 50%; overflow: hidden;">
+                    <img src="https://raw.githubusercontent.com/DanvilAi/RUBI/refs/heads/main/images%20(4)-512x512.png" alt="RUBI Logo" style="width: 38px; height: 37px; border-radius: 50%;" loading="lazy" />
+                </div>
+                <span class="p2p"></span>
+                <div class="header-title">
+                    <span class="express">RUBI P2P</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="currency-selector">
+                    <span id="currency-display">TANZANIA</span>
+                    <img src="https://flagcdn.com/w40/tz.png" alt="Tanzania Flag" style="height: 12px;">
+                </div>
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                    <div class="notification-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-section active" id="home-page">
+            <div class="buy-sell-toggle">
+                <div class="toggle-container">
+                    <button class="toggle-btn active" id="buy-bt">SELL</button>
+                    <button class="toggle-btn inactive" id="sell-bt">BUY RUBI HERE</button>
+                </div>
+            </div>
+            <div class="filter-bar">
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <div class="rubi-icon"></div>
+                        <span>RUBI</span>
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                    <div class="filter-option">
+                        <span>INVEST</span>
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <div class="filter-option">
+                        <span>WIN</span>
+                        <i class="fa-regular fa-window-restore"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="traders-container" id="ads-container">
+                <div class="spinner" id="loading-spinner"></div>
+                <div class="error-message" id="error-message"></div>
+            </div>
+        </div>
+
+        <div class="page-section" id="orders-page">
+            <div class="order-tabs">
+                <div class="order-tab active" onclick="switchOrderTab('all')">All</div>
+                <div class="order-tab" onclick="switchOrderTab('pending')">Pending</div>
+                <div class="order-tab" onclick="switchOrderTab('completed')">Completed</div>
+                <div class="order-tab" onclick="switchOrderTab('cancelled')">Cancelled</div>
+            </div>
+            <div class="traders-container" id="orders-container">
+                <div class="spinner" id="orders-spinner"></div>
+                <div class="error-message" id="orders-error"></div>
+            </div>
+        </div>
+
+        <div class="page-section" id="ads-page">
+            <button class="create-ad-btn submit-btn" onclick="showCreateAdModal()">Create New Ad</button>
+            <div class="ad-type-toggle">
+                <button class="ad-type-btn active" onclick="switchAdType('buy')">Buy Ads</button>
+                <button class="ad-type-btn inactive" onclick="switchAdType('sell')">Sell Ads</button>
+            </div>
+            <div class="my-ads-list" id="my-ads-container">
+                <div class="spinner" id="my-ads-spinner"></div>
+                <div class="error-message" id="my-ads-error"></div>
+            </div>
+        </div>
+
+        <div class="page-section" id="chat-page">
+            <div class="traders-container">
+                <div style="text-align: center; padding: 50px 0;">
+                    <i class="fas fa-comments" style="font-size: 48px; color: #8D9199; margin-bottom: 16px;"></i>
+                    <h3 style="margin-bottom: 8px;">No messages yet</h3>
+                    <p style="color: #8D9199;">Start a conversation with a trader</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-section profile-section" id="profile-page">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profile-avatar">U</div>
+                <div class="profile-info">
+                    <h2 id="profile-name">Loading...</h2>
+                    <p id="profile-join-date">Loading</p>
+                </div>
+            </div>
+            <div class="wallet-card">
+                <div class="wallet-header">
+                    <div class="wallet-title">TZS Wallet</div>
+                    <i class="fa-solid fa-wallet" style="color: #F0B90B; font-size: 24px;"></i>
+                </div>
+                <div class="wallet-balance" id="usdt-balance">0.00</div>
+                <div class="wallet-currency">TZS</div>
+                <div class="wallet-actions">
+                    <button class="wallet-btn deposit-btn" onclick="showDepositModal()">Deposit</button>
+                    <button class="wallet-btn withdraw-btn" onclick="showWithdrawModal()">Withdraw</button>
+                </div>
+            </div>
+            <div class="wallet-card">
+                <div class="wallet-header">
+                    <div class="wallet-title">RUBI Wallet</div>
+                    <i class="fa-regular fa-gem" style="color: #F0B90B; font-size: 24px;"></i>
+                </div>
+                <div class="wallet-balance" id="rubi-balance">0.00</div>
+                <div class="wallet-currency">RUBI</div>
+                <div class="wallet-actions">
+                    <button class="wallet-btn deposit-btn" onclick="showDepositRubiModal()">Deposit</button>
+                    <button class="wallet-btn withdraw-btn" onclick="showWithdrawRubiModal()">Withdraw</button>
+                </div>
+            </div>
+            <button class="sign-out-btn" onclick="signOut()">
+                <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>
+                Sign Out
+            </button>
+        </div>
+
+        <div class="modal" id="order-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="order-modal-title">Buy RUBI</div>
+                    <button class="close-btn" onclick="closeModal('order-modal')">×</button>
+                </div>
+                <div class="order-form">
+                    <div class="form-group">
+                        <label class="form-label">Amount (RUBI)</label>
+                        <input type="number" class="form-input" id="rubi-amount" placeholder="Enter amount" min="0" step="0.01" oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group" id="rubi-address-group">
+                        <label class="form-label">Your RUBI Address</label>
+                        <input type="text" class="form-input" id="rubi-address" placeholder="Enter your RUBI wallet address">
+                    </div>
+                    <div class="form-group" id="phone-number-group" style="display: none;">
+                        <label class="form-label">Receiving Phone Number</label>
+                        <input type="text" class="form-input" id="phone-number" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group" id="receiver-name-group" style="display: none;">
+                        <label class="form-label">Receiver Name</label>
+                        <input type="text" class="form-input" id="receiver-name" placeholder="Enter receiver name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <select class="form-select" id="payment-method"></select>
+                    </div>
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span class="summary-label">Price</span>
+                            <span class="summary-value" id="order-price">TSh 0.00/RUBI</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Amount</span>
+                            <span class="summary-value" id="summary-amount">0.00 RUBI</span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="summary-row">
+                            <span class="summary-label">Total</span>
+                            <span class="summary-value" id="summary-total">TSh 0.00</span>
+                        </div>
+                    </div>
+                    <button class="submit-btn" id="confirm-order-btn" disabled onclick="confirmOrder()">Submit</button>
+                    <div class="modal-spinner" id="order-modal-spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="create-ad-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Create New Ad</div>
+                    <button class="close-btn" onclick="closeModal('create-ad-modal')">×</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ad Type</label>
+                    <select class="form-select" id="ad-type" onchange="updateAvailableAmount()">
+                        <option value="buy">Buy RUBI</option>
+                        <option value="sell">Sell RUBI</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price (TZS/RUBI)</label>
+                    <input type="number" class="form-input" id="ad-price" placeholder="Enter price" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Minimum Amount (TZS)</label>
+                    <input type="number" class="form-input" id="ad-min" placeholder="Enter minimum amount" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Maximum Amount (TZS)</label>
+                    <input type="number" class="form-input" id="ad-max" placeholder="Enter maximum amount" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-select" id="ad-payment">
+                        <option>M-pesa (Vodafone)</option>
+                        <option>Tigo Pesa</option>
+                        <option>Airtel Money</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Available Amount (RUBI/TSH)</label>
+                    <input type="number" class="form-input" id="ad-available" placeholder="Available amount" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Time Limit (minutes)</label>
+                    <input type="number" class="form-input" id="ad-time" placeholder="Enter time limit" min="5" value="15">
+                </div>
+                <button class="submit-btn" id="create-ad-btn" onclick="createAd()">Create Ad</button>
+                <div class="modal-spinner" id="create-ad-spinner"></div>
+            </div>
+        </div>
+
+        <div class="modal" id="deposit-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Deposit TZS</div>
+                    <button class="close-btn" onclick="closeModal('deposit-modal')">×</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount (TZS)</label>
+                    <input type="number" class="form-input" id="deposit-amount" placeholder="Enter amount" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" class="form-input" id="deposit-phone" placeholder="Enter phone number (10-12 digits)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Receiver Name</label>
+                    <input type="text" class="form-input" id="deposit-receiver-name" placeholder="Enter name">
+                </div>
+                <div class="deposit-instructions">
+                    Fanya malipo sawa na kiasi ulicho weka;  Malipo yote kwenye namba <span class="no">0743470389</span> jina DAVID GINANE.
+                </div>
+                <button class="submit-btn" id="deposit-btn" onclick="processDeposit()">Submit Payment</button>
+                <div class="modal-spinner" id="deposit-spinner"></div>
+            </div>
+        </div>
+
+        <div class="modal" id="withdraw-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Withdraw TZS</div>
+                    <button class="close-btn" onclick="closeModal('withdraw-modal')">×</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount (TZS)</label>
+                    <input type="number" class="form-input" id="withdraw-amount" placeholder="Enter amount" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" class="form-input" id="wallet-address" placeholder="Enter phone number for TZS withdrawal">
+                </div>
+                <button class="submit-btn" id="withdraw-btn" onclick="processWithdrawal()">Withdraw</button>
+                <div class="modal-spinner" id="withdraw-spinner"></div>
+            </div>
+        </div>
+
+        <div class="modal" id="deposit-rubi-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Deposit RUBI</div>
+                    <button class="close-btn" onclick="closeModal('deposit-rubi-modal')">×</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount (RUBI)</label>
+                    <input type="number" class="form-input" id="deposit-rubi-amount" placeholder="Enter amount" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">RUBI Address</label>
+                    <input type="text" class="form-input" id="deposit-rubi-address" placeholder="Enter RUBI address">
+                </div>
+                <div class="deposit-instructions">
+                    Tuma rubi kwenda kwenye address tajwa ili kuweza kuuza <span class="no">RUBI ZITAINGIA HAPA MOJA KWA MOJA</span> tuma RUBI kwenye address:
+                    <br><span class="no">0xb2bb1d6669eae6df07021c30<br>6133113a292fcc5e</span>
+                </div>
+                <div class="qr-code-placeholder">QR Code Placeholder</div>
+                <button class="submit-btn" id="deposit-rubi-btn" onclick="processRubiDeposit()">Submit Payment</button>
+                <div class="modal-spinner" id="deposit-rubi-spinner"></div>
+            </div>
+        </div>
+
+        <div class="modal" id="withdraw-rubi-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Withdraw RUBI</div>
+                    <button class="close-btn" onclick="closeModal('withdraw-rubi-modal')">×</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount (RUBI)</label>
+                    <input type="number" class="form-input" id="withdraw-rubi-amount" placeholder="Enter amount" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">RUBI Wallet Address</label>
+                    <input type="text" class="form-input" id="rubi-phone" placeholder="Enter RUBI wallet address">
+                </div>
+                <button class="submit-btn" id="withdraw-rubi-btn" onclick="processRubiWithdrawal()">Withdraw</button>
+                <div class="modal-spinner" id="withdraw-rubi-spinner"></div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <a href="#" class="nav-item active" onclick="showPage('home-page')">
+                <i class="fas fa-home nav-icon"></i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('orders-page')">
+                <i class="fas fa-receipt nav-icon"></i>
+                <span>Orders</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('ads-page')">
+                <i class="fas fa-bullhorn nav-icon"></i>
+                <span>Ads</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('chat-page')">
+                <i class="fas fa-comments nav-icon"></i>
+                <span>Chat</span>
+                <div class="chat-badge"></div>
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('profile-page')">
+                <i class="fas fa-user nav-icon"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        // Loader Script
+        document.addEventListener('DOMContentLoaded', () => {
+            const loader = document.getElementById('loader');
+            const errorContainer = document.getElementById('error-container');
+            const errorText = document.getElementById('error-text');
+            const mainContent = document.getElementById('main-content');
+            const adsContainer = document.getElementById('ads-container');
+            const errorMessage = document.getElementById('error-message');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            const errorSound = new Audio('https://cdn.pixabay.com/audio/2023/08/08/audio_ba55e0fddf.mp3');
+            errorSound.volume = 0.5;
+
+            const playErrorSound = () => {
+                errorSound.play().catch(err => console.log('Audio play failed:', err));
+            };
+
+            const checkContentLoaded = () => {
+                const hasContent = Array.from(adsContainer.children).some(
+                    child => !child.classList.contains('spinner') && !child.classList.contains('error-message')
+                );
+                const hasError = errorMessage && errorMessage.textContent.trim() !== '' && getComputedStyle(errorMessage).display !== 'none';
+                const spinnerHidden = loadingSpinner && getComputedStyle(loadingSpinner).display === 'none';
+                return { hasContent, hasError, spinnerHidden };
+            };
+
+            const showError = (message) => {
+                errorText.textContent = message;
+                loader.classList.add('hidden');
+                errorContainer.classList.add('show');
+                playErrorSound();
+            };
+
+            window.retryLoading = () => {
+                errorContainer.classList.remove('show');
+                loader.classList.remove('hidden');
+                mainContent.style.display = 'none';
+                startPolling();
+            };
+
+            const startPolling = () => {
+                const maxWaitTime = 13000;
+                const pollInterval = 500;
+                let elapsedTime = 0;
+
+                if (!navigator.onLine) {
+                    showError('No internet connection. Please connect and try again.');
+                    return;
+                }
+
+                const pollContent = setInterval(() => {
+                    const { hasContent, hasError, spinnerHidden } = checkContentLoaded();
+
+                    if (hasContent || spinnerHidden) {
+                        loader.classList.add('hidden');
+                        errorContainer.classList.remove('show');
+                        mainContent.style.display = 'block';
+                        clearInterval(pollContent);
+                    } else if (hasError) {
+                        showError(errorMessage.textContent || 'Failed to load content. Please try again.');
+                        clearInterval(pollContent);
+                    } else if (elapsedTime >= maxWaitTime) {
+                        showError('Request timed out. Please try again.');
+                        clearInterval(pollContent);
+                    }
+
+                    elapsedTime += pollInterval;
+                }, pollInterval);
+            };
+
+            startPolling();
+
+            window.addEventListener('online', () => {
+                if (errorContainer.classList.contains('show')) {
+                    retryLoading();
+                }
+            });
+
+            window.addEventListener('offline', () => {
+                showError('No internet connection. Please connect and try again.');
+            });
+        });
+
+        // Import existing script.js
+        import './script.js';
+    </script>
+</body>
+</html>
