@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RUBI P2P - Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary: #f0b90b;
+      --primary-dark: #e6a800;
+      --dark: #0b0e11;
+      --dark-gray: #1e2329;
+      --medium-gray: #2b3139;
+      --light-gray: #474d57;
+      --text-light: #eaecef;
+      --text-gray: #848e9c;
+      --error: #f6465d;
+      --success: #0ecb81;
+      --google-blue: #4285F4;
+      --google-blue-dark: #3367d6;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+      background: var(--dark);
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 0;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.1) 0%, transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(240, 185, 11, 0.1) 0%, transparent 30%);
+    }
+    
+    .container {
+      background: var(--dark-gray);
+      padding: 40px;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      position: relative;
+      overflow: auto;
+    }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .logo h1 {
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+    
+    .container h2 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .terms {
+      font-size: 14px;
+      color: var(--text-gray);
+      margin-bottom: 30px;
+      display: flex;
+      align-items: flex-start;
+      line-height: 1.5;
+      max-width: 400px;
+    }
+    
+    .terms input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--light-gray);
+      border-radius: 4px;
+      margin-right: 10px;
+      margin-top: 3px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .terms input[type="checkbox"]:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+    
+    .terms input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      color: var(--dark);
+      font-size: 12px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .terms a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    
+    .terms a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 25px 0;
+      color: var(--text-gray);
+      font-size: 13px;
+      width: 400px;
+    }
+    
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--medium-gray);
+    }
+    
+    .divider::before {
+      margin-right: 15px;
+    }
+    
+    .divider::after {
+      margin-left: 15px;
+    }
+    
+    .google-btn {
+      width: 400px;
+      padding: 14px;
+      background: var(--google-blue);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 10px rgba(66, 133, 244, 0.2);
+    }
+    
+    .google-btn:hover {
+      background: var(--google-blue-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+    }
+    
+    .google-btn:active {
+      transform: translateY(0);
+    }
+    
+    .google-btn i {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    
+    .links {
+      margin-top: 25px;
+      font-size: 14px;
+      text-align: center;
+      color: var(--text-gray);
+    }
+    
+    .links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+      margin: 0 5px;
+    }
+    
+    .links a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+    
+    .social-media {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 15px;
+    }
+    
+    .social-media a {
+      color: var(--text-gray);
+      font-size: 18px;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+    
+    .social-media a:hover {
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .logo h1 {
+        font-size: 28px;
+      }
+      
+      .container h2 {
+        font-size: 24px;
+      }
+      
+      .terms, .google-btn, .divider {
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      .social-media {
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="logo">
+      <h1>RUBI P2P</h1>
+    </div>
+    
+    <h2>Welcome to RUBI P2P</h2>
+
+    <div class="terms">
+      <label>
+        <input type="checkbox" required />
+        By continuing, I agree to RUBI's <a href="#">Terms of Service</a> and acknowledge the <a href="#">Privacy Policy</a> and <a href="#">Risk Disclosure</a>.
+      </label>
+    </div>
+
+    <button id="google-signin" class="google-btn">
+      <i class="fab fa-google"></i> Continue with Google
+    </button>
+
+    <div class="divider"></div>
+    
+    <div class="links">
+      2025 RUBI <a href="#">P2P</a><br><br>
+      <a href="#">Sell/buy rubi here</a> • <a href="https://wa.me/+255621658007">Need help?</a>
+    </div>
+
+    <div class="social-media">
+      <a href="https://instagram.com/danvil_tz" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="https://x.com/X3danvil" target="_blank" title="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
+      <a href="https://github.com/danvil33" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+      <a href="https://wa.me/+255621658007" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCh1Hc9xveKcuwjhFxt6nLZRdpcose9ftg",
+      authDomain: "danvil-f9d47.firebaseapp.com",
+      projectId: "danvil-f9d47",
+      storageBucket: "danvil-f9d47.appspot.com",
+      messagingSenderId: "847152281023",
+      appId: "1:847152281023:web:7610456546790a6947dd0a",
+      measurementId: "G-K9LKBBCDB6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    document.getElementById("google-signin").addEventListener("click", async () => {
+      const checkbox = document.querySelector('input[type="checkbox"]');
+      if (!checkbox.checked) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Terms Required',
+          text: 'Please agree to the terms and conditions.',
+          confirmButtonColor: '#f0b90b'
+        });
+        return;
+      }
+      
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        const userRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userRef);
+
+        if (!docSnap.exists()) {
+          await setDoc(userRef, {
+            uid: user.uid,  
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            usdtBalance: 0,
+            rubiBalance: 0,
+            createdAt: new Date(),
+            lastLogin: new Date(),
+            verified: false
+          });
+        } else {
+          await setDoc(userRef, {
+            lastLogin: new Date()
+          }, { merge: true });
+        }
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful',
+          text: 'Redirecting to your dashboard...',
+          timer: 1500,
+          showConfirmButton: false,
+          didClose: () => {
+            window.location.href = "3.html";
+          }
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: error.message,
+          confirmButtonColor: '#f0b90b'
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
