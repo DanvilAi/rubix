@@ -2,206 +2,390 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RUBI P2P - Login</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RUBI P2P - Signup / Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    /* Your existing CSS (kept exactly as is) */
-    :root {
-      --primary: #f0b90b;
-      --primary-dark: #e6a800;
-      --dark: #0b0e11;
-      --dark-gray: #1e2329;
-      --medium-gray: #2b3139;
-      --light-gray: #474d57;
-      --text-light: #eaecef;
-      --text-gray: #848e9c;
-      --error: #f6465d;
-      --success: #0ecb81;
-      --google-blue: #4285F4;
-      --google-blue-dark: #3367d6;
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
     }
-    * {margin:0;padding:0;box-sizing:border-box;font-family: 'Inter', sans-serif;}
+
     body {
-      background: var(--dark);
-      color: var(--text-light);
+      margin: 0;
+      background-color: #0e1217; /* dark bg like Binance */
+      font-family: 'Inter', sans-serif;
+      color: #e6e8eb;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       min-height: 100vh;
-      padding: 0;
-      background-image: 
-        radial-gradient(circle at 20% 30%, rgba(240, 185, 11, 0.1) 0%, transparent 30%),
-        radial-gradient(circle at 80% 70%, rgba(240, 185, 11, 0.1) 0%, transparent 30%);
+      padding: 20px;
     }
-    .container {
-      background: var(--dark-gray);
-      padding: 40px;
-      width: 100vw;
-      height: 100vh;
+
+    .auth-container {
+      background: #141a23;
+      border-radius: 12px;
+      width: 380px;
+      padding: 40px 30px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      border: none;
       position: relative;
-      overflow: auto;
     }
-    .container::before {content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg, var(--primary), var(--primary-dark));}
-    .logo {text-align: center;margin-bottom: 20px;}
-    .logo h1 {font-size: 36px;font-weight: 700;background: linear-gradient(90deg, var(--primary), var(--primary-dark));-webkit-background-clip: text;-webkit-text-fill-color: transparent;display: inline-block;}
-    .container h2 {font-size: 28px;font-weight: 600;margin-bottom: 30px;text-align: center;}
-    .terms {font-size: 14px;color: var(--text-gray);margin-bottom: 30px;display: flex;align-items: flex-start;line-height: 1.5;max-width: 400px;}
-    .terms input[type="checkbox"] {appearance:none;-webkit-appearance:none;width:16px;height:16px;border:1px solid var(--light-gray);border-radius:4px;margin-right:10px;margin-top:3px;cursor:pointer;position:relative;transition:all 0.2s ease;}
-    .terms input[type="checkbox"]:checked {background-color: var(--primary);border-color: var(--primary);}
-    .terms input[type="checkbox"]:checked::after {content:'✓';position:absolute;color:var(--dark);font-size:12px;top:50%;left:50%;transform:translate(-50%,-50%);}
-    .terms a {color: var(--primary);text-decoration:none;font-weight:500;transition:color 0.2s ease;}
-    .terms a:hover {color: var(--primary-dark);text-decoration:underline;}
-    .divider {display:flex;align-items:center;margin:25px 0;color: var(--text-gray);font-size:13px;width:400px;}
-    .divider::before,.divider::after {content:'';flex:1;height:1px;background: var(--medium-gray);}
-    .divider::before {margin-right:15px;}
-    .divider::after {margin-left:15px;}
-    .google-btn {width:400px;padding:14px;background: var(--google-blue);border:none;border-radius:10px;color:white;font-size:15px;font-weight:500;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:all 0.2s ease;box-shadow:0 2px 10px rgba(66,133,244,0.2);}
-    .google-btn:hover {background: var(--google-blue-dark);transform:translateY(-2px);box-shadow:0 4px 15px rgba(66,133,244,0.3);}
-    .google-btn:active {transform:translateY(0);}
-    .google-btn i {margin-right:10px;font-size:18px;}
-    .links {margin-top:25px;font-size:14px;text-align:center;color: var(--text-gray);}
-    .links a {color: var(--primary);text-decoration:none;font-weight:500;transition:color 0.2s ease;margin:0 5px;}
-    .links a:hover {color: var(--primary-dark);text-decoration:underline;}
-    .social-media {display:flex;justify-content:center;margin-top:20px;gap:15px;}
-    .social-media a {color: var(--text-gray);font-size:18px;transition:color 0.2s ease, transform 0.2s ease;}
-    .social-media a:hover {color: var(--primary);transform:translateY(-2px);}
-    @media (max-width:480px){
-      .container {padding:20px;}
-      .logo h1 {font-size:28px;}
-      .container h2 {font-size:24px;}
-      .terms,.google-btn,.divider {width:100%;max-width:300px;}
-      .social-media {gap:12px;}
+
+    .auth-container h1 {
+      font-weight: 600;
+      font-size: 28px;
+      margin-bottom: 32px;
+      color: #f0b90b; /* gold Binance-like */
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #8f92a1;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      background: #1f2633;
+      border: 1.5px solid #2f3848;
+      border-radius: 8px;
+      color: #e6e8eb;
+      font-size: 15px;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #f0b90b;
+      outline: none;
+      background: #252f41;
+    }
+
+    button {
+      padding: 14px;
+      background: #f0b90b;
+      color: #141a23;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #d3a300;
+    }
+
+    .toggle-text {
+      margin-top: 22px;
+      font-size: 14px;
+      color: #8f92a1;
+      text-align: center;
+      user-select: none;
+    }
+
+    .toggle-text span {
+      color: #f0b90b;
+      cursor: pointer;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .error-msg {
+      background: #f6465d;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: none;
+      user-select: none;
+    }
+
+    .forgot-password {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #f0b90b;
+      text-align: right;
+      cursor: pointer;
+      user-select: none;
+      text-decoration: underline;
+    }
+
+    .forgot-password:hover {
+      color: #d3a300;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <h1>RUBI P2P</h1>
+
+  <div class="auth-container" role="main" aria-label="Authentication Form">
+    <h1 id="form-title">Create Account</h1>
+
+    <div class="error-msg" id="error-msg" role="alert"></div>
+
+    <form id="auth-form" autocomplete="off" novalidate>
+      <div id="name-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="Your full name" autocomplete="name" />
+      </div>
+
+      <div>
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="example@mail.com" autocomplete="email" required />
+      </div>
+
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="At least 6 characters" autocomplete="new-password" required minlength="6" />
+      </div>
+
+      <div id="passphrase-group">
+        <label for="passphrase">Confirm Password</label>
+        <input type="password" id="passphrase" placeholder="Confirm your password" autocomplete="new-password" />
+      </div>
+
+      <button type="submit" id="submit-btn">Sign Up</button>
+    </form>
+
+    <div class="forgot-password" id="forgot-password" style="display:none;">
+      Forgot Password?
     </div>
-    <h2>Welcome to RUBI P2P</h2>
-    <div class="terms">
-      <label>
-        <input type="checkbox" id="terms-checkbox" />
-        By continuing, I agree to RUBI's <a href="#">Terms of Service</a> and acknowledge the <a href="#">Privacy Policy</a> and <a href="#">Risk Disclosure</a>.
-      </label>
-    </div>
-    <button id="google-signin" class="google-btn">
-      <i class="fab fa-google"></i> Continue with Google
-    </button>
-    <div class="divider"></div>
-    <div class="links">
-      2025 RUBI <a href="#">P2P</a><br><br>
-      <a href="#">Sell/buy rubi here</a> • <a href="https://wa.me/+255621658007">Need help?</a>
-    </div>
-    <div class="social-media">
-      <a href="https://instagram.com/danvil_tz" target="_blank"><i class="fab fa-instagram"></i></a>
-      <a href="https://x.com/X3danvil" target="_blank"><i class="fab fa-x-twitter"></i></a>
-      <a href="https://github.com/danvil33" target="_blank"><i class="fab fa-github"></i></a>
-      <a href="https://wa.me/+255621658007" target="_blank"><i class="fab fa-whatsapp"></i></a>
+
+    <div class="toggle-text" id="toggle-text">
+      Already have an account?
+      <span id="toggle-link">Login</span>
     </div>
   </div>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCh1Hc9xveKcuwjhFxt6nLZRdpcose9ftg",
-    authDomain: "danvil-f9d47.firebaseapp.com",
-    projectId: "danvil-f9d47",
-    storageBucket: "danvil-f9d47.appspot.com",
-    messagingSenderId: "847152281023",
-    appId: "1:847152281023:web:7610456546790a6947dd0a",
-    measurementId: "G-K9LKBBCDB6"
-  };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      updateProfile 
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCh1Hc9xveKcuwjhFxt6nLZRdpcose9ftg",
+      authDomain: "danvil-f9d47.firebaseapp.com",
+      projectId: "danvil-f9d47",
+      storageBucket: "danvil-f9d47.appspot.com",
+      messagingSenderId: "847152281023",
+      appId: "1:847152281023:web:7610456546790a6947dd0a",
+      measurementId: "G-K9LKBBCDB6"
+    };
 
-  // Redirect logged-in users automatically (if they reload page or visit again)
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      // Optional: ensure user data is saved/updated before redirect
-      await saveUserData(user);
-      redirectToDashboard();
-    }
-  });
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  document.getElementById("google-signin").addEventListener("click", async () => {
-    const checkbox = document.querySelector('input[type="checkbox"]');
-    if (!checkbox.checked) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Terms Required',
-        text: 'Please agree to the terms and conditions.',
-        confirmButtonColor: '#f0b90b'
-      });
-      return;
-    }
+    const formTitle = document.getElementById("form-title");
+    const toggleText = document.getElementById("toggle-text");
+    const authForm = document.getElementById("auth-form");
+    const submitBtn = document.getElementById("submit-btn");
+    const errorMsg = document.getElementById("error-msg");
+    const nameGroup = document.getElementById("name-group");
+    const inputName = document.getElementById("name");
+    const passphraseGroup = document.getElementById("passphrase-group");
+    const inputPassphrase = document.getElementById("passphrase");
+    const forgotPassword = document.getElementById("forgot-password");
 
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+    let isLogin = false; // start in Sign Up mode
 
-      await saveUserData(user);
+    function bindToggle() {
+      const toggleLink = document.getElementById("toggle-link");
+      toggleLink.addEventListener("click", () => {
+        isLogin = !isLogin;
+        errorMsg.style.display = "none";
 
-      Swal.fire({
-        icon: 'success',
-        title: 'Login Successful',
-        text: 'Redirecting to your dashboard...',
-        timer: 1500,
-        showConfirmButton: false,
-        didClose: () => {
-          redirectToDashboard();
+        if (isLogin) {
+          formTitle.textContent = "Login to your account";
+          submitBtn.textContent = "Login";
+          toggleText.innerHTML = `Don't have an account? <span id="toggle-link">Sign Up</span>`;
+          nameGroup.style.display = "none";
+          passphraseGroup.style.display = "none";
+          forgotPassword.style.display = "block"; // show forgot password link on login
+        } else {
+          formTitle.textContent = "Create Account";
+          submitBtn.textContent = "Sign Up";
+          toggleText.innerHTML = `Already have an account? <span id="toggle-link">Login</span>`;
+          nameGroup.style.display = "block";
+          passphraseGroup.style.display = "block";
+          forgotPassword.style.display = "none"; // hide forgot password on signup
         }
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Login Failed',
-        text: error.message,
-        confirmButtonColor: '#f0b90b'
+        bindToggle(); // rebind toggle link after innerHTML change
       });
     }
-  });
+    bindToggle();
 
-  async function saveUserData(user) {
-    const userRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(userRef);
+    forgotPassword.addEventListener("click", () => {
+      // Open WhatsApp chat with your number
+      const phone = "+255621658007";
+      const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=Hi,%20I%20forgot%20my%20password.%20Please%20help%20me.`;
+      window.open(url, "_blank");
+    });
 
-    if (!docSnap.exists()) {
-      await setDoc(userRef, {
-        uid: user.uid,
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        usdtBalance: 0,
-        rubiBalance: 0,
-        createdAt: new Date(),
-        lastLogin: new Date(),
-        verified: false
-      });
-    } else {
-      await setDoc(userRef, {
-        lastLogin: new Date()
-      }, { merge: true });
+    authForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorMsg.style.display = "none";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const name = inputName.value.trim();
+      const passphrase = inputPassphrase.value.trim();
+
+      if (!email || !password || (!isLogin && (!name || !passphrase))) {
+        showError("Please fill in all required fields.");
+        return;
+      }
+
+      if (password.length < 6) {
+        showError("Password must be at least 6 characters.");
+        return;
+      }
+
+      if (!isLogin) {
+        if (passphrase.length < 6) {
+          showError("Confirm Password must be at least 6 characters.");
+          return;
+        }
+        if (password !== passphrase) {
+          showError("Password and Confirm Password do not match.");
+          return;
+        }
+      }
+
+      try {
+        if (isLogin) {
+          // LOGIN FLOW - ask passphrase via modal, check against Firestore
+          const { value: passphraseInput } = await Swal.fire({
+            title: 'Enter your passphrase',
+            input: 'password',
+            inputLabel: 'Passphrase',
+            inputPlaceholder: 'Your secret passphrase',
+            inputAttributes: {
+              maxlength: 100,
+              autocapitalize: 'off',
+              autocorrect: 'off',
+              required: 'true'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+            cancelButtonText: 'Cancel',
+            allowOutsideClick: false
+          });
+
+          if (!passphraseInput) {
+            showError("Passphrase is required to login.");
+            return;
+          }
+
+          Swal.fire({ title: 'Logging in...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+          // Sign in with email and password
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const uid = userCredential.user.uid;
+
+          // Fetch user Firestore doc
+          const userRef = doc(db, "users", uid);
+          const userDoc = await getDoc(userRef);
+
+          if (!userDoc.exists()) {
+            Swal.close();
+            showError("User record not found.");
+            return;
+          }
+          const userData = userDoc.data();
+
+          if (userData.passphrase !== passphraseInput) {
+            Swal.close();
+            showError("Incorrect passphrase.");
+            return;
+          }
+
+          // Update last login time
+          await setDoc(userRef, { lastLogin: new Date() }, { merge: true });
+
+          Swal.close();
+
+          await Swal.fire({
+            icon: 'success',
+            title: 'Login successful',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          redirectDashboard();
+
+        } else {
+          // SIGNUP FLOW
+          Swal.fire({ title: 'Creating account...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+          // Update displayName in Firebase Auth profile
+          await updateProfile(userCredential.user, { displayName: name });
+
+          // Save user to Firestore with passphrase (same as password here)
+          const userRef = doc(db, "users", userCredential.user.uid);
+          await setDoc(userRef, {
+            uid: userCredential.user.uid,
+            displayName: name,
+            email: email,
+            passphrase: password,
+            usdtBalance: 0,
+            rubiBalance: 0,
+            createdAt: new Date(),
+            lastLogin: new Date(),
+            verified: false
+          });
+
+          Swal.close();
+
+          await Swal.fire({
+            icon: 'success',
+            title: 'Account created',
+            text: 'Redirecting to dashboard...',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          redirectDashboard();
+        }
+      } catch (error) {
+        Swal.close();
+        showError(error.message || "An error occurred.");
+      }
+    });
+
+    function redirectDashboard() {
+      window.location.href = "3.html";
     }
-  }
 
-  function redirectToDashboard() {
-    window.location.href = "3.html";
-  }
-</script>
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.style.display = "block";
+    }
+  </script>
 </body>
 </html>
