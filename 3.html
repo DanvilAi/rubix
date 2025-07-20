@@ -959,5 +959,17 @@
         // Import existing script.js
         import './script.js';
     </script>
+
+<script src="https://unpkg.com/pulltorefreshjs"></script>
+<script>
+PullToRefresh.init({
+  mainElement: 'body',
+  onRefresh() {
+    window.location.reload();
+  }
+});
+</script>
+
+    
 </body>
 </html>
