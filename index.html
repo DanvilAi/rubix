@@ -174,218 +174,219 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-    import { 
-      getAuth, 
-      createUserWithEmailAndPassword, 
-      signInWithEmailAndPassword, 
-      updateProfile 
-    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    updateProfile,
+    browserLocalPersistence,
+    setPersistence,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCh1Hc9xveKcuwjhFxt6nLZRdpcose9ftg",
-      authDomain: "danvil-f9d47.firebaseapp.com",
-      projectId: "danvil-f9d47",
-      storageBucket: "danvil-f9d47.appspot.com",
-      messagingSenderId: "847152281023",
-      appId: "1:847152281023:web:7610456546790a6947dd0a",
-      measurementId: "G-K9LKBBCDB6"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyCh1Hc9xveKcuwjhFxt6nLZRdpcose9ftg",
+    authDomain: "danvil-f9d47.firebaseapp.com",
+    projectId: "danvil-f9d47",
+    storageBucket: "danvil-f9d47.appspot.com",
+    messagingSenderId: "847152281023",
+    appId: "1:847152281023:web:7610456546790a6947dd0a",
+    measurementId: "G-K9LKBBCDB6"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const formTitle = document.getElementById("form-title");
-    const toggleText = document.getElementById("toggle-text");
-    const authForm = document.getElementById("auth-form");
-    const submitBtn = document.getElementById("submit-btn");
-    const errorMsg = document.getElementById("error-msg");
-    const nameGroup = document.getElementById("name-group");
-    const inputName = document.getElementById("name");
-    const passphraseGroup = document.getElementById("passphrase-group");
-    const inputPassphrase = document.getElementById("passphrase");
-    const forgotPassword = document.getElementById("forgot-password");
+  // ✅ Set session persistence
+  await setPersistence(auth, browserLocalPersistence);
 
-    let isLogin = false; // start in Sign Up mode
-
-    function bindToggle() {
-      const toggleLink = document.getElementById("toggle-link");
-      toggleLink.addEventListener("click", () => {
-        isLogin = !isLogin;
-        errorMsg.style.display = "none";
-
-        if (isLogin) {
-          formTitle.textContent = "Login to your account";
-          submitBtn.textContent = "Login";
-          toggleText.innerHTML = `Don't have an account? <span id="toggle-link">Sign Up</span>`;
-          nameGroup.style.display = "none";
-          passphraseGroup.style.display = "none";
-          forgotPassword.style.display = "block"; // show forgot password link on login
-        } else {
-          formTitle.textContent = "Create Account";
-          submitBtn.textContent = "Sign Up";
-          toggleText.innerHTML = `Already have an account? <span id="toggle-link">Login</span>`;
-          nameGroup.style.display = "block";
-          passphraseGroup.style.display = "block";
-          forgotPassword.style.display = "none"; // hide forgot password on signup
-        }
-        bindToggle(); // rebind toggle link after innerHTML change
-      });
+  // ✅ If already logged in, redirect to dashboard
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      redirectDashboard();
     }
-    bindToggle();
+  });
 
-    forgotPassword.addEventListener("click", () => {
-      // Open WhatsApp chat with your number
-      const phone = "+255621658007";
-      const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=Hi,%20I%20forgot%20my%20password.%20Please%20help%20me.`;
-      window.open(url, "_blank");
-    });
+  const formTitle = document.getElementById("form-title");
+  const toggleText = document.getElementById("toggle-text");
+  const authForm = document.getElementById("auth-form");
+  const submitBtn = document.getElementById("submit-btn");
+  const errorMsg = document.getElementById("error-msg");
+  const nameGroup = document.getElementById("name-group");
+  const inputName = document.getElementById("name");
+  const passphraseGroup = document.getElementById("passphrase-group");
+  const inputPassphrase = document.getElementById("passphrase");
+  const forgotPassword = document.getElementById("forgot-password");
 
-    authForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  let isLogin = false;
+
+  function bindToggle() {
+    const toggleLink = document.getElementById("toggle-link");
+    toggleLink.addEventListener("click", () => {
+      isLogin = !isLogin;
       errorMsg.style.display = "none";
 
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const name = inputName.value.trim();
-      const passphrase = inputPassphrase.value.trim();
-
-      if (!email || !password || (!isLogin && (!name || !passphrase))) {
-        showError("Please fill in all required fields.");
-        return;
+      if (isLogin) {
+        formTitle.textContent = "Login to your account";
+        submitBtn.textContent = "Login";
+        toggleText.innerHTML = `Don't have an account? <span id="toggle-link">Sign Up</span>`;
+        nameGroup.style.display = "none";
+        passphraseGroup.style.display = "none";
+        forgotPassword.style.display = "block";
+      } else {
+        formTitle.textContent = "Create Account";
+        submitBtn.textContent = "Sign Up";
+        toggleText.innerHTML = `Already have an account? <span id="toggle-link">Login</span>`;
+        nameGroup.style.display = "block";
+        passphraseGroup.style.display = "block";
+        forgotPassword.style.display = "none";
       }
-
-      if (password.length < 6) {
-        showError("Password must be at least 6 characters.");
-        return;
-      }
-
-      if (!isLogin) {
-        if (passphrase.length < 6) {
-          showError("Confirm Password must be at least 6 characters.");
-          return;
-        }
-        if (password !== passphrase) {
-          showError("Password and Confirm Password do not match.");
-          return;
-        }
-      }
-
-      try {
-        if (isLogin) {
-          // LOGIN FLOW - ask passphrase via modal, check against Firestore
-          const { value: passphraseInput } = await Swal.fire({
-            title: 'Enter your passphrase',
-            input: 'password',
-            inputLabel: 'Passphrase',
-            inputPlaceholder: 'Your secret passphrase',
-            inputAttributes: {
-              maxlength: 100,
-              autocapitalize: 'off',
-              autocorrect: 'off',
-              required: 'true'
-            },
-            showCancelButton: true,
-            confirmButtonText: 'Submit',
-            cancelButtonText: 'Cancel',
-            allowOutsideClick: false
-          });
-
-          if (!passphraseInput) {
-            showError("Passphrase is required to login.");
-            return;
-          }
-
-          Swal.fire({ title: 'Logging in...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
-
-          // Sign in with email and password
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          const uid = userCredential.user.uid;
-
-          // Fetch user Firestore doc
-          const userRef = doc(db, "users", uid);
-          const userDoc = await getDoc(userRef);
-
-          if (!userDoc.exists()) {
-            Swal.close();
-            showError("User record not found.");
-            return;
-          }
-          const userData = userDoc.data();
-
-          if (userData.passphrase !== passphraseInput) {
-            Swal.close();
-            showError("Incorrect passphrase.");
-            return;
-          }
-
-          // Update last login time
-          await setDoc(userRef, { lastLogin: new Date() }, { merge: true });
-
-          Swal.close();
-
-          await Swal.fire({
-            icon: 'success',
-            title: 'Login successful',
-            timer: 1500,
-            showConfirmButton: false,
-          });
-
-          redirectDashboard();
-
-        } else {
-          // SIGNUP FLOW
-          Swal.fire({ title: 'Creating account...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
-
-          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-          // Update displayName in Firebase Auth profile
-          await updateProfile(userCredential.user, { displayName: name });
-
-          // Save user to Firestore with passphrase (same as password here)
-          const userRef = doc(db, "users", userCredential.user.uid);
-          await setDoc(userRef, {
-            uid: userCredential.user.uid,
-            displayName: name,
-            email: email,
-            passphrase: password,
-            usdtBalance: 0,
-            rubiBalance: 0,
-            createdAt: new Date(),
-            lastLogin: new Date(),
-            verified: false
-          });
-
-          Swal.close();
-
-          await Swal.fire({
-            icon: 'success',
-            title: 'Account created',
-            text: 'Redirecting to dashboard...',
-            timer: 1500,
-            showConfirmButton: false,
-          });
-
-          redirectDashboard();
-        }
-      } catch (error) {
-        Swal.close();
-        showError(error.message || "An error occurred.");
-      }
+      bindToggle();
     });
+  }
+  bindToggle();
 
-    function redirectDashboard() {
-      window.location.href = "3.html";
+  forgotPassword.addEventListener("click", () => {
+    const url = `https://wa.me/255621658007?text=Hi,%20I%20forgot%20my%20password.%20Please%20help%20me.`;
+    window.open(url, "_blank");
+  });
+
+  authForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorMsg.style.display = "none";
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const name = inputName.value.trim();
+    const passphrase = inputPassphrase.value.trim();
+
+    if (!email || !password || (!isLogin && (!name || !passphrase))) {
+      showError("Please fill in all required fields.");
+      return;
     }
 
-    function showError(message) {
-      errorMsg.textContent = message;
-      errorMsg.style.display = "block";
+    if (password.length < 6) {
+      showError("Password must be at least 6 characters.");
+      return;
     }
-  </script>
+
+    if (!isLogin) {
+      if (passphrase.length < 6) {
+        showError("Confirm Password must be at least 6 characters.");
+        return;
+      }
+      if (password !== passphrase) {
+        showError("Password and Confirm Password do not match.");
+        return;
+      }
+    }
+
+    try {
+      if (isLogin) {
+        const { value: passphraseInput } = await Swal.fire({
+          title: 'Enter your passphrase',
+          input: 'password',
+          inputLabel: 'Passphrase',
+          inputPlaceholder: 'Your secret passphrase',
+          showCancelButton: true,
+          allowOutsideClick: false
+        });
+
+        if (!passphraseInput) {
+          showError("Passphrase is required to login.");
+          return;
+        }
+
+        Swal.fire({ title: 'Logging in...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        const userRef = doc(db, "users", uid);
+        const userDoc = await getDoc(userRef);
+
+        if (!userDoc.exists()) {
+          Swal.close();
+          showError("User record not found.");
+          return;
+        }
+
+        const userData = userDoc.data();
+        if (userData.passphrase !== passphraseInput) {
+          Swal.close();
+          showError("Incorrect passphrase.");
+          return;
+        }
+
+        await setDoc(userRef, { lastLogin: new Date() }, { merge: true });
+
+        Swal.close();
+        await Swal.fire({
+          icon: 'success',
+          title: 'Login successful',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        redirectDashboard();
+
+      } else {
+        Swal.fire({ title: 'Creating account...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name });
+
+        const userRef = doc(db, "users", userCredential.user.uid);
+        await setDoc(userRef, {
+          uid: userCredential.user.uid,
+          displayName: name,
+          email: email,
+          passphrase: password,
+          usdtBalance: 0,
+          rubiBalance: 0,
+          createdAt: new Date(),
+          lastLogin: new Date(),
+          verified: false
+        });
+
+        Swal.close();
+        await Swal.fire({
+          icon: 'success',
+          title: 'Account created',
+          text: 'Redirecting to dashboard...',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        redirectDashboard();
+      }
+    } catch (error) {
+      Swal.close();
+      showError(error.message || "An error occurred.");
+    }
+  });
+
+  function redirectDashboard() {
+    window.location.href = "3.html";
+  }
+
+  function showError(message) {
+    errorMsg.textContent = message;
+    errorMsg.style.display = "block";
+  }
+</script>
+ 
+
+    
+
+          
+            
+             
+
+
 </body>
 </html>
